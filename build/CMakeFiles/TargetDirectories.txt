@@ -1,0 +1,3 @@
+/Users/ajit/Code/ml/build/CMakeFiles/micrograd.dir
+/Users/ajit/Code/ml/build/CMakeFiles/edit_cache.dir
+/Users/ajit/Code/ml/build/CMakeFiles/rebuild_cache.dir
