@@ -1,8 +1,0 @@
-[
-{
-  "directory": "/Users/ajit/Code/ml/build",
-  "command": "/usr/bin/c++   -std=gnu++23 -arch arm64 -Wall -Wextra -g -O0 -o CMakeFiles/micrograd.dir/src/main.cpp.o -c /Users/ajit/Code/ml/src/main.cpp",
-  "file": "/Users/ajit/Code/ml/src/main.cpp",
-  "output": "CMakeFiles/micrograd.dir/src/main.cpp.o"
-}
-]
