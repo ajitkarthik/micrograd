@@ -7,7 +7,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)   # <-- this line is the magic
 
 add_library(micrograd STATIC 
     src/value.cpp 
-    src/neuron.cpp)
+    src/neuron.cpp
+    src/layer.cpp)
 target_include_directories(micrograd PUBLIC include)
 
 add_executable(microgradtest examples/microgradtest.cpp)

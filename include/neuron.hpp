@@ -4,6 +4,7 @@
 
 class Neuron {
    private:
+    // inputs of the neuron
     std::vector<Value> weights;
     Value bias;
     int inputs;

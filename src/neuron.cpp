@@ -17,19 +17,13 @@ Neuron::Neuron(int inputs) : inputs(inputs) {
         weights.push_back(Value(dist(rng)));
     }
     bias = Value(dist(rng));
-
-    for (auto element : weights) {
-        std::cout << element << " " << std::endl;
-    }
-
-    std::cout << "Bias = " << bias << std::endl;
 }
 
 Value Neuron::operator()(std::vector<double> x) {
-    Value output = bias;
+    Value out = bias;
 
     for (auto&& [x, weight] : std::views::zip(x, weights)) {
-        output = output + (x * weight);
+        out = out + (x * weight);
     }
-    return output.tanh();
+    return out.tanh();
 }

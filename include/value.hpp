@@ -60,6 +60,8 @@ class Value {
     Value tanh() const;
     // * operator
     Value operator*(const Value& other) const;
+    friend std::ostream& operator<<(std::ostream& os, const std::vector<Value>& v);
+    friend std::ostream& operator<<(std::ostream& os, const Value& v);
 
     // ===Backprop===
     void backward();
@@ -71,3 +73,4 @@ Value operator+(double lhs, const Value& rhs);
 Value operator+(const Value& lhs, double rhs);
 
 std::ostream& operator<<(std::ostream& os, const Value& v);
+std::ostream& operator<<(std::ostream& os, const std::vector<Value>& v);

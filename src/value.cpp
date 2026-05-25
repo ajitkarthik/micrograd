@@ -157,6 +157,15 @@ Value operator+(const Value& lhs, double rhs) { return lhs + Value(rhs); }
 void Value::backward() { node_->backward(); }
 
 std::ostream& operator<<(std::ostream& os, const Value& v) {
-    v.node()->print(os);
+    os << "Value(" << v.node_->data << ")";
     return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const std::vector<Value>& v) {
+    os << '[';
+    for (size_t i = 0; i < v.size(); ++i) {
+        if (i) os << ", ";
+        os << v[i];
+    }
+    return os << ']';
 }
