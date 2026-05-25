@@ -75,25 +75,16 @@ void Value::Node::backward_local(void) {
     switch (op) {
         case Node::Op::TANH:
             prev[0]->grad += (1.0 - pow(data, 2)) * grad;
-            std::cout << "TANH0: " << prev[0]->grad << std::endl;
             break;
         case Node::Op::ADD:
             prev[0]->grad += 1.0 * grad;
             prev[1]->grad += 1.0 * grad;
-            std::cout << "ADD0: " << prev[0]->grad << std::endl;
-            std::cout << "ADD1: " << prev[0]->grad << std::endl;
-
             break;
         case Node::Op::MUL:
             prev[0]->grad += prev[1]->data * grad;
             prev[1]->grad += prev[0]->data * grad;
-            std::cout << "MUL0: " << prev[0]->grad << std::endl;
-            std::cout << "MUL1: " << prev[0]->grad << std::endl;
-
             break;
         case Node::Op::LEAF:
-            std::cout << "Leaf node, no backward required" << std::endl;
-
             break;
     }
 }
@@ -112,12 +103,6 @@ void Value::Node::backward(void) {
     }
 }
 
-// non-leaf (operation) constructor
-Value::Value(double data, std::vector<std::shared_ptr<Node>> parents, Node::Op op,
-             const std::string& opstring, const std::string& label) {
-    node_ = std::make_shared<Node>(data, parents, op, opstring, label);
-}
-
 // ===getters===
 std::shared_ptr<Value::Node> Value::node() const { return node_; }
 
@@ -126,11 +111,20 @@ void Value::label(const std::string& label) { node_->label = label; }
 void Value::grad(double grad) { node_->grad = grad; }
 
 // ===Constructors===
+// default constructor
+Value::Value() { Value(0.0, ""); }
+
 // leaf node constuctor
 Value::Value(double data, const std::string& label) {
     // for leaf value node, initialize with empty parents
     node_ = std::make_shared<Node>(data, std::vector<std::shared_ptr<Node>>{}, Node::Op::LEAF, "",
                                    label);
+}
+
+// non-leaf (operation) constructor
+Value::Value(double data, std::vector<std::shared_ptr<Node>> parents, Node::Op op,
+             const std::string& opstring, const std::string& label) {
+    node_ = std::make_shared<Node>(data, parents, op, opstring, label);
 }
 
 // constructor to go from Node object to Value object
@@ -154,6 +148,11 @@ Value Value::tanh() const {
 Value Value::operator*(const Value& other) const {
     return Value(node_->data * other.node_->data, {node_, other.node_}, Node::Op::MUL, "*");
 }
+
+Value operator*(double lhs, const Value& rhs) { return Value(lhs) * rhs; }
+Value operator*(const Value& lhs, double rhs) { return lhs * Value(rhs); }
+Value operator+(double lhs, const Value& rhs) { return Value(lhs) + rhs; }
+Value operator+(const Value& lhs, double rhs) { return lhs + Value(rhs); }
 
 void Value::backward() { node_->backward(); }
 

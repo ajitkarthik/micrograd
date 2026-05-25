@@ -43,8 +43,12 @@ class Value {
     void grad(double grad);
 
     // ===Constructors===
+
+    // default constructor
+    Value();
+
     // leaf node constuctor
-    Value(double data, const std::string& label);
+    Value(double data, const std::string& label = "");
 
     // constructor to go from Node object to Value object
     Value(std::shared_ptr<Node> n);
@@ -54,11 +58,16 @@ class Value {
     Value operator+(const Value& other) const;
     // tanh operator
     Value tanh() const;
-
     // * operator
     Value operator*(const Value& other) const;
 
+    // ===Backprop===
     void backward();
 };
+
+Value operator*(double lhs, const Value& rhs);
+Value operator*(const Value& lhs, double rhs);
+Value operator+(double lhs, const Value& rhs);
+Value operator+(const Value& lhs, double rhs);
 
 std::ostream& operator<<(std::ostream& os, const Value& v);
