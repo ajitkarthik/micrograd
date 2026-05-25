@@ -5,6 +5,7 @@
 #include <memory>
 #include <numbers>
 #include <ostream>
+#include <stack>
 #include <string>
 
 void Value::Node::print(std::ostream& os, int depth,
@@ -28,26 +29,86 @@ void Value::Node::print(std::ostream& os, int depth,
     }
 }
 
+void Value::Node::printNode(std::ostream& os) const {
+    os << "Value(";
+    if (!label.empty()) os << label << " : ";
+    os << "data=" << data;
+    if (!opstring.empty()) os << ", opstring=" << opstring;
+    os << ", op=" << static_cast<int>(op);
+    os << ", grad=" << grad;
+    os << ")\n";
+}
+
 // gradient computation - See Karpathy's micrograd video for an explanation of this.
-void Value::Node::backward(void) {
-    std::cout << "Computing backward on " << label << std::endl;
+// Topological sort algo.
+// IMPLEMENTATION SIMPLIFIED FOR MLPS WITH ONLY ONE OUTPUT NEURON (DAG WITH ONE ROOT)
+// TopologicalSortDFS(Graph G):
+//     visited = array of size V, initialized to false
+//     stack = empty stacko9
+
+//     for each vertex v in G:
+//         if visited[v] == false:
+//             DFSVisit(v, visited, stack)
+
+//     # The topological order is obtained by popping the stack
+//     return stack
+
+// DFSVisit(v, visited, stack):
+//     visited[v] = true
+//     for each neighbor u of v:
+//         if visited[u] == false:
+//             DFSVisit(u, visited, stack)
+//     stack.push(v)
+
+void Value::Node::DFSVisit(Node* curr, std::vector<Node*>& visited,
+                           std::stack<Node*>& stack) const {
+    visited.push_back(curr);
+    for (const auto& p : curr->prev) {
+        if (std::find(visited.begin(), visited.end(), p.get()) == visited.end()) {
+            DFSVisit(p.get(), visited, stack);
+        }
+    }
+    stack.push(curr);
+}
+
+void Value::Node::backward_local(void) {
     switch (op) {
         case Node::Op::TANH:
             prev[0]->grad += (1.0 - pow(data, 2)) * grad;
+            std::cout << "TANH0: " << prev[0]->grad << std::endl;
             break;
         case Node::Op::ADD:
             prev[0]->grad += 1.0 * grad;
             prev[1]->grad += 1.0 * grad;
+            std::cout << "ADD0: " << prev[0]->grad << std::endl;
+            std::cout << "ADD1: " << prev[0]->grad << std::endl;
+
             break;
         case Node::Op::MUL:
             prev[0]->grad += prev[1]->data * grad;
             prev[1]->grad += prev[0]->data * grad;
+            std::cout << "MUL0: " << prev[0]->grad << std::endl;
+            std::cout << "MUL1: " << prev[0]->grad << std::endl;
+
             break;
         case Node::Op::LEAF:
+            std::cout << "Leaf node, no backward required" << std::endl;
+
             break;
     }
-    for (const auto& p : prev) {
-        p->backward();
+}
+
+void Value::Node::backward(void) {
+    std::stack<Node*> stack;
+    std::vector<Node*> visited;
+
+    // Initialize root of toposort with the current node
+    Value::Node::DFSVisit(this, visited, stack);
+
+    while (!stack.empty()) {
+        Node* top = stack.top();
+        top->backward_local();
+        stack.pop();
     }
 }
 

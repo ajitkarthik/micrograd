@@ -21,9 +21,11 @@ class Value {
 
         void print(std::ostream& os, int depth = 0,
                    std::unordered_set<const Node*>* visited = nullptr) const;
-
+        void printNode(std::ostream& os) const;
         // gradient computation - See Karpathy's micrograd video for an explanation of this.
         void backward(void);
+        void backward_local(void);
+        void DFSVisit(Node* curr, std::vector<Node*>& visited, std::stack<Node*>& stack) const;
     };
 
     std::shared_ptr<Node> node_;

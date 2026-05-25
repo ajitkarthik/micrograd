@@ -33,4 +33,22 @@ int main(void) {
     //     b.backward();
     //     std::cout << b;
     // }
+
+    // {
+    //     //   c = a + b
+    //     //   d = c * k     // k is some Value(2.0)
+    //     //   e = c + d     // c is now shared between two non-leaf consumers
+    //     Value a = Value(1.0, "a");
+    //     Value b = Value(2.0, "b");
+    //     Value c = a + b;
+    //     c.label("c");
+    //     Value k = Value(2.0, "k");
+    //     Value d = c * k;
+    //     d.label("d");
+    //     Value e = c + d;
+    //     e.label("e");
+    //     e.grad(1.0);
+    //     e.backward();
+    //     std::cout << e;
+    // }
 }
