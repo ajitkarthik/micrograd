@@ -78,7 +78,8 @@ void Value::Node::DFSVisit(Node* curr, std::unordered_set<Node*>& visited,
 void Value::Node::backward_local(void) {
     switch (op) {
         case Node::Op::TANH:
-            prev[0]->grad += (1.0 - pow(data, 2)) * grad;
+            // d(tan x)/dx = (1 - tan(x)^2)
+            prev[0]->grad += (1.0 - std::pow(data, 2)) * grad;
             break;
         case Node::Op::ADD:
             prev[0]->grad += 1.0 * grad;
@@ -88,6 +89,17 @@ void Value::Node::backward_local(void) {
             prev[0]->grad += prev[1]->data * grad;
             prev[1]->grad += prev[0]->data * grad;
             break;
+        case Node::Op::POW: {
+            // d(x^n)/dx = n * (x^(n-1))
+            // d(x^n)/dn = x^n * ln(x)
+            const double base = prev[0]->data;
+            const double exp = prev[1]->data;
+            prev[0]->grad += (exp * std::pow(base, exp - 1)) * grad;
+            if (base > 0.0) {
+                prev[1]->grad += std::pow(base, exp) * std::log(base) * grad;
+            }
+            break;
+        }
         case Node::Op::LEAF:
             break;
     }
@@ -140,12 +152,20 @@ Value Value::operator+(const Value& other) const {
     return Value(node_->data + other.node_->data, {node_, other.node_}, Node::Op::ADD, "+");
 }
 
+// - operator
+Value Value::operator-(const Value& other) const { return *this + (-1.0 * other); }
+
 // tanh operator
 Value Value::tanh() const {
     using std::pow;
     using std::numbers::e;
     return Value((pow(e, 2 * node_->data) - 1) / (pow(e, 2 * node_->data) + 1), {node_},
                  Node::Op::TANH, "tanh");
+}
+
+Value Value::pow(const Value& exponent) const {
+    return Value(std::pow(node_->data, exponent.node_->data), {node_, exponent.node_},
+                 Value::Node::Op::POW, "^");
 }
 
 // * operator
@@ -157,6 +177,8 @@ Value operator*(double lhs, const Value& rhs) { return Value(lhs) * rhs; }
 Value operator*(const Value& lhs, double rhs) { return lhs * Value(rhs); }
 Value operator+(double lhs, const Value& rhs) { return Value(lhs) + rhs; }
 Value operator+(const Value& lhs, double rhs) { return lhs + Value(rhs); }
+Value operator-(double lhs, const Value& rhs) { return Value(lhs) - rhs; }
+Value operator-(const Value& lhs, double rhs) { return lhs - Value(rhs); }
 
 void Value::backward() { node_->backward(); }
 

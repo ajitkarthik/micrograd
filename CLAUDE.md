@@ -22,7 +22,7 @@ There is no test suite; verification is done by running an example (currently `n
 ## Code Conventions
 
 - C++23 (`CMAKE_CXX_STANDARD 23`).
-- Example targets compile with `-Wall -Wextra -g -O0` (set per-target in `CMakeLists.txt`, not on the library).
+- Both the `micrograd` library and example targets compile with `-Wall -Wextra -g -O0 -Wimplicit-fallthrough` (set per-target in `CMakeLists.txt`).
 - Formatting: Google style, 4-space indent, 100-column limit (`.clang-format`).
 
 ## Architecture

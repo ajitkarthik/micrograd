@@ -12,7 +12,7 @@ class Value {
         double data;
         double grad;
         std::vector<std::shared_ptr<Node>> prev;
-        enum class Op { LEAF, ADD, MUL, TANH };
+        enum class Op { LEAF, ADD, MUL, TANH, POW };
         Op op;
         std::string opstring;
         std::string label;
@@ -58,12 +58,15 @@ class Value {
     // ===Operator overloads===
     // + operator
     Value operator+(const Value& other) const;
+    Value operator-(const Value& other) const;
     // tanh operator
     Value tanh() const;
     // * operator
     Value operator*(const Value& other) const;
     friend std::ostream& operator<<(std::ostream& os, const std::vector<Value>& v);
     friend std::ostream& operator<<(std::ostream& os, const Value& v);
+    // pow operator
+    Value pow(const Value& exponent) const;
 
     // ===Backprop===
     void backward();
@@ -75,6 +78,8 @@ Value operator*(double lhs, const Value& rhs);
 Value operator*(const Value& lhs, double rhs);
 Value operator+(double lhs, const Value& rhs);
 Value operator+(const Value& lhs, double rhs);
+Value operator-(double lhs, const Value& rhs);
+Value operator-(const Value& lhs, double rhs);
 
 std::ostream& operator<<(std::ostream& os, const Value& v);
 std::ostream& operator<<(std::ostream& os, const std::vector<Value>& v);
