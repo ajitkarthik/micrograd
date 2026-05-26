@@ -1,5 +1,6 @@
 #include "value.hpp"
 
+#include <cmath>
 #include <cstddef>
 #include <iostream>
 #include <memory>
@@ -7,9 +8,10 @@
 #include <ostream>
 #include <stack>
 #include <string>
+#include <unordered_set>
 
-void Value::Node::print(std::ostream& os, int depth,
-                        std::unordered_set<const Node*>* visited) const {
+void Value::Node::printGraph(std::ostream& os, int depth,
+                             std::unordered_set<const Node*>* visited) const {
     std::unordered_set<const Node*> local_visited;
     if (!visited) visited = &local_visited;
     os << std::string(depth * 2, ' ');
@@ -25,19 +27,21 @@ void Value::Node::print(std::ostream& os, int depth,
     os << ", grad=" << grad;
     os << ")\n";
     for (const auto& p : prev) {
-        p->print(os, depth + 1, visited);
+        p->printGraph(os, depth + 1, visited);
     }
 }
 
-void Value::Node::printNode(std::ostream& os) const {
-    os << "Value(";
-    if (!label.empty()) os << label << " : ";
-    os << "data=" << data;
-    if (!opstring.empty()) os << ", opstring=" << opstring;
-    os << ", op=" << static_cast<int>(op);
-    os << ", grad=" << grad;
-    os << ")\n";
-}
+void Value::printGraph(std::ostream& os) { node_->printGraph(os); }
+
+// void Value::Node::printNode(std::ostream& os) const {
+//     os << "Value(";
+//     if (!label.empty()) os << label << " : ";
+//     os << "data=" << data;
+//     if (!opstring.empty()) os << ", opstring=" << opstring;
+//     os << ", op=" << static_cast<int>(op);
+//     os << ", grad=" << grad;
+//     os << ")\n";
+// }
 
 // gradient computation - See Karpathy's micrograd video for an explanation of this.
 // Topological sort algo.
@@ -60,11 +64,11 @@ void Value::Node::printNode(std::ostream& os) const {
 //             DFSVisit(u, visited, stack)
 //     stack.push(v)
 
-void Value::Node::DFSVisit(Node* curr, std::vector<Node*>& visited,
+void Value::Node::DFSVisit(Node* curr, std::unordered_set<Node*>& visited,
                            std::stack<Node*>& stack) const {
-    visited.push_back(curr);
+    visited.insert(curr);
     for (const auto& p : curr->prev) {
-        if (std::find(visited.begin(), visited.end(), p.get()) == visited.end()) {
+        if (!visited.contains(p.get())) {
             DFSVisit(p.get(), visited, stack);
         }
     }
@@ -91,7 +95,7 @@ void Value::Node::backward_local(void) {
 
 void Value::Node::backward(void) {
     std::stack<Node*> stack;
-    std::vector<Node*> visited;
+    std::unordered_set<Node*> visited;
 
     // Initialize root of toposort with the current node
     Value::Node::DFSVisit(this, visited, stack);
@@ -112,7 +116,7 @@ void Value::grad(double grad) { node_->grad = grad; }
 
 // ===Constructors===
 // default constructor
-Value::Value() { Value(0.0, ""); }
+Value::Value() : Value(0.0, "") {}
 
 // leaf node constuctor
 Value::Value(double data, const std::string& label) {

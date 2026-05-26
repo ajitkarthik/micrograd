@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <memory>
+#include <stack>
 #include <unordered_set>
 #include <vector>
 
@@ -19,13 +20,14 @@ class Value {
              const std::string& opstring = "", const std::string& label = "")
             : data(data), grad(0), prev(prev), op(op), opstring(opstring), label(label) {}
 
-        void print(std::ostream& os, int depth = 0,
-                   std::unordered_set<const Node*>* visited = nullptr) const;
-        void printNode(std::ostream& os) const;
-        // gradient computation - See Karpathy's micrograd video for an explanation of this.
+        void printGraph(std::ostream& os, int depth = 0,
+                        std::unordered_set<const Node*>* visited = nullptr) const;
+        // void printNode(std::ostream& os) const;
+        //  gradient computation - See Karpathy's micrograd video for an explanation of this.
         void backward(void);
         void backward_local(void);
-        void DFSVisit(Node* curr, std::vector<Node*>& visited, std::stack<Node*>& stack) const;
+        void DFSVisit(Node* curr, std::unordered_set<Node*>& visited,
+                      std::stack<Node*>& stack) const;
     };
 
     std::shared_ptr<Node> node_;
@@ -65,6 +67,8 @@ class Value {
 
     // ===Backprop===
     void backward();
+
+    void printGraph(std::ostream& os);
 };
 
 Value operator*(double lhs, const Value& rhs);
