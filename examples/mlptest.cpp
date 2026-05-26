@@ -21,12 +21,16 @@ int main(void) {
     // std::cout << preds[0];
     // preds[0].printGraph(std::cout);
 
-    Value mse = 0.0;
+    Value loss = 0.0;
     for (auto&& [pi, yi] : std::views::zip(preds, ys)) {
-        std::cout << "pi" << pi << std::endl;
-        std::cout << "yi" << yi << std::endl;
-        mse = mse + (pi - Value(yi).pow(2.0));
+        std::cout << "pi:" << pi << std::endl;
+        std::cout << "yi:" << yi << std::endl;
+        Value loss_temp = (pi - yi).pow(2.0);
+        std::cout << "Loss:" << loss_temp << std::endl;
+        loss = loss + loss_temp;
     }
 
-    std::cout << mse;
+    std::cout << loss;
+    loss.grad(1.0);
+    loss.backward();
 }

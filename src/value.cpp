@@ -165,7 +165,7 @@ Value Value::tanh() const {
 
 Value Value::pow(const Value& exponent) const {
     return Value(std::pow(node_->data, exponent.node_->data), {node_, exponent.node_},
-                 Value::Node::Op::POW, "^");
+                 Value::Node::Op::POW, "pow");
 }
 
 // * operator
