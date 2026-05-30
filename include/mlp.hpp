@@ -9,5 +9,6 @@ class MLP {
 
    public:
     MLP(int nin, std::vector<int> nouts);
-    std::vector<Value> operator()(const std::vector<double>& x);
+    std::vector<Value> operator()(const std::vector<double>& x) const;
+    std::vector<Value> parameters() const;
 };

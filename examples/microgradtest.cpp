@@ -1,10 +1,12 @@
+#include <iostream>
+
 #include "value.hpp"
 
-int main(void) {
+int main() {
     {
         Value x1 = Value(2.0, "x1");
         Value x2 = Value(0.0, "x2");
-        Value w1 = Value(-3, "w1");
+        Value w1 = Value(-3.0, "w1");
         Value w2 = Value(1.0, "w2");
         Value b = Value(6.8813735870, "b");
 

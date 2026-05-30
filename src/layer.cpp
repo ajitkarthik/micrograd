@@ -8,10 +8,20 @@ Layer::Layer(int nin, int nout) {
     }
 }
 
-std::vector<Value> Layer::operator()(const std::vector<Value>& x) {
+std::vector<Value> Layer::operator()(const std::vector<Value>& x) const {
     std::vector<Value> outs;
-    for (auto& neuron : neurons) {
+    for (const auto& neuron : neurons) {
         outs.push_back(neuron(x));
     }
     return outs;
+}
+
+std::vector<Value> Layer::parameters() const {
+    std::vector<Value> out;
+    for (const auto& neuron : neurons) {
+        for (auto& param : neuron.parameters()) {
+            out.push_back(param);
+        }
+    }
+    return out;
 }

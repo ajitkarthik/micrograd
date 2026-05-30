@@ -26,8 +26,8 @@ class Value {
         //  gradient computation - See Karpathy's micrograd video for an explanation of this.
         void backward(void);
         void backward_local(void);
-        void DFSVisit(Node* curr, std::unordered_set<Node*>& visited,
-                      std::stack<Node*>& stack) const;
+        static void DFSVisit(Node* curr, std::unordered_set<Node*>& visited,
+                             std::stack<Node*>& stack);
     };
 
     std::shared_ptr<Node> node_;
@@ -39,10 +39,20 @@ class Value {
    public:
     // ===getters===
     std::shared_ptr<Node> node() const;
+    double grad() const;
+    double data() const;
 
     // ===setters===
     void label(const std::string& label);
+
+    // grad() is typically requied for:
+    // Setting the gradient to 1.0 for the final node before a backprop pass
+    // Settng the gradient to 0.0 for the non-final nodes before a backprop pass
     void grad(double grad);
+
+    // data() is typically required to adjust the weights & biases after
+    // a backprop pass
+    void data(double data);
 
     // ===Constructors===
 
@@ -71,7 +81,7 @@ class Value {
     // ===Backprop===
     void backward();
 
-    void printGraph(std::ostream& os);
+    void printGraph(std::ostream& os) const;
 };
 
 Value operator*(double lhs, const Value& rhs);

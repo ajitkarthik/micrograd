@@ -31,7 +31,7 @@ void Value::Node::printGraph(std::ostream& os, int depth,
     }
 }
 
-void Value::printGraph(std::ostream& os) { node_->printGraph(os); }
+void Value::printGraph(std::ostream& os) const { node_->printGraph(os); }
 
 // void Value::Node::printNode(std::ostream& os) const {
 //     os << "Value(";
@@ -43,7 +43,6 @@ void Value::printGraph(std::ostream& os) { node_->printGraph(os); }
 //     os << ")\n";
 // }
 
-// gradient computation - See Karpathy's micrograd video for an explanation of this.
 // Topological sort algo.
 // IMPLEMENTATION SIMPLIFIED FOR MLPS WITH ONLY ONE OUTPUT NEURON (DAG WITH ONE ROOT)
 // TopologicalSortDFS(Graph G):
@@ -65,7 +64,7 @@ void Value::printGraph(std::ostream& os) { node_->printGraph(os); }
 //     stack.push(v)
 
 void Value::Node::DFSVisit(Node* curr, std::unordered_set<Node*>& visited,
-                           std::stack<Node*>& stack) const {
+                           std::stack<Node*>& stack) {
     visited.insert(curr);
     for (const auto& p : curr->prev) {
         if (!visited.contains(p.get())) {
@@ -105,6 +104,7 @@ void Value::Node::backward_local(void) {
     }
 }
 
+// gradient computation - See Karpathy's micrograd video for an explanation of this.
 void Value::Node::backward(void) {
     std::stack<Node*> stack;
     std::unordered_set<Node*> visited;
@@ -121,10 +121,13 @@ void Value::Node::backward(void) {
 
 // ===getters===
 std::shared_ptr<Value::Node> Value::node() const { return node_; }
+double Value::grad() const { return node_->grad; }
+double Value::data() const { return node_->data; }
 
 // ===setters===
 void Value::label(const std::string& label) { node_->label = label; }
 void Value::grad(double grad) { node_->grad = grad; }
+void Value::data(double data) { node_->data = data; }
 
 // ===Constructors===
 // default constructor
